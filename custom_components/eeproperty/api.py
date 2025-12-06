@@ -1,7 +1,6 @@
 """API client for eeProperty washing machine system."""
 import asyncio
 import logging
-from typing import Any
 
 import aiohttp
 
@@ -14,6 +13,7 @@ from .const import (
     REQUESTED_WITH,
     VESTA_API_URL,
 )
+from .models import Activity, LoginResponse, Machine, TokenResponse, User
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -59,9 +59,10 @@ class EePropertyApiClient:
             ) as response:
                 if response.status == 200:
                     data = await response.json()
-                    if data.get("status") == 0:
-                        self._user_id = data.get("userId")
-                        self._user_label = data.get("userLabel")
+                    login_response = LoginResponse.from_dict(data)
+                    if login_response.status == 0:
+                        self._user_id = login_response.user_id
+                        self._user_label = login_response.user_label
                         _LOGGER.debug("Login successful for user %s", self._user_label)
                         return True
                 _LOGGER.error("Login failed with status %s", response.status)
@@ -115,8 +116,9 @@ class EePropertyApiClient:
             ) as response:
                 if response.status == 200:
                     data = await response.json()
-                    if data.get("status") == 0:
-                        self._token = data.get("token")
+                    token_response = TokenResponse.from_dict(data)
+                    if token_response.status == 0:
+                        self._token = token_response.token
                         _LOGGER.debug("Authentication successful, token received")
                         return True
                 _LOGGER.error("Security code verification failed with status %s", response.status)
@@ -128,7 +130,7 @@ class EePropertyApiClient:
             _LOGGER.error("Error verifying security code: %s", err)
             return False
 
-    async def get_user_data(self) -> dict[str, Any] | None:
+    async def get_user_data(self) -> User | None:
         """Get user data including balance."""
         if not self.is_authenticated:
             _LOGGER.error("Cannot get user data: not authenticated")
@@ -143,7 +145,7 @@ class EePropertyApiClient:
                 if response.status == 200:
                     data = await response.json()
                     if data.get("status") == 0:
-                        return data.get("user")
+                        return User.from_dict(data["user"])
                 _LOGGER.error("Failed to get user data: %s", response.status)
                 return None
         except asyncio.TimeoutError:
@@ -171,7 +173,7 @@ class EePropertyApiClient:
         except (asyncio.TimeoutError, aiohttp.ClientError):
             return False
 
-    async def get_machines(self) -> list[dict[str, Any]]:
+    async def get_machines(self) -> list[Machine]:
         """Get list of washing machines."""
         if not self.is_authenticated:
             _LOGGER.error("Cannot get machines: not authenticated")
@@ -185,7 +187,8 @@ class EePropertyApiClient:
             ) as response:
                 if response.status == 200:
                     data = await response.json()
-                    return data.get("machines", [])
+                    machines_data = data.get("machines", [])
+                    return [Machine.from_dict(m) for m in machines_data]
                 _LOGGER.error("Failed to get machines: %s", response.status)
                 return []
         except asyncio.TimeoutError:
@@ -195,7 +198,7 @@ class EePropertyApiClient:
             _LOGGER.error("Error getting machines: %s", err)
             return []
 
-    async def get_uses(self, length: int = 20) -> list[dict[str, Any]]:
+    async def get_uses(self, length: int = 20) -> list[Activity]:
         """Get recent usage history."""
         if not self.is_authenticated:
             _LOGGER.error("Cannot get uses: not authenticated")
@@ -210,7 +213,8 @@ class EePropertyApiClient:
             ) as response:
                 if response.status == 200:
                     data = await response.json()
-                    return data.get("activities", [])
+                    activities_data = data.get("activities", [])
+                    return [Activity.from_dict(a) for a in activities_data]
                 _LOGGER.error("Failed to get uses: %s", response.status)
                 return []
         except asyncio.TimeoutError:

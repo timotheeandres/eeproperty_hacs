@@ -23,15 +23,6 @@ HEADER_REQUESTED_WITH = "X-Requested-With"
 APP_VERSION = "1.7.6"
 REQUESTED_WITH = "ch.eeproperty.vesta"
 
-# Machine states
-STATE_DEACTIVATED = "DEACTIVATED"  # Available
-STATE_ACTIVATED = "ACTIVATED"  # Occupied/Running
-STATE_ERROR = "ERROR"  # Unavailable
-
-# Machine types
-TYPE_WASHER = "WASHER"
-TYPE_DRYER = "DRYER"
-
 # Attributes
 ATTR_MACHINE_TYPE = "machine_type"
 ATTR_MACHINE_NUMBER = "machine_number"
