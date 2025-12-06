@@ -128,19 +128,9 @@ class EePropertyApiClient:
             _LOGGER.error("Error verifying security code: %s", err)
             return False
 
-    async def authenticate(self, security_code: str) -> bool:
-        """Complete authentication flow."""
-        if not await self.login():
-            return False
-        if not await self.send_security_code():
-            return False
-        if not await self.verify_security_code(security_code):
-            return False
-        return True
-
     async def get_user_data(self) -> dict[str, Any] | None:
         """Get user data including balance."""
-        if not self._token:
+        if not self.is_authenticated:
             _LOGGER.error("Cannot get user data: not authenticated")
             return None
 
@@ -165,7 +155,7 @@ class EePropertyApiClient:
 
     async def validate_token(self) -> bool:
         """Validate that the stored token is still working."""
-        if not self._token:
+        if not self.is_authenticated:
             return False
 
         try:
@@ -183,7 +173,7 @@ class EePropertyApiClient:
 
     async def get_machines(self) -> list[dict[str, Any]]:
         """Get list of washing machines."""
-        if not self._token:
+        if not self.is_authenticated:
             _LOGGER.error("Cannot get machines: not authenticated")
             return []
 
@@ -207,7 +197,7 @@ class EePropertyApiClient:
 
     async def get_uses(self, length: int = 20) -> list[dict[str, Any]]:
         """Get recent usage history."""
-        if not self._token:
+        if not self.is_authenticated:
             _LOGGER.error("Cannot get uses: not authenticated")
             return []
 

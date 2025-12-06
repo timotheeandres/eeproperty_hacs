@@ -65,7 +65,7 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             data_schema=STEP_USER_DATA_SCHEMA,
             errors=errors,
             description_placeholders={
-                "code_info": "Your eeProperty building code (e.g., LEX8)",
+                "code_info": "Your eeProperty building code",
                 "pin_info": "Your personal PIN code",
             },
         )

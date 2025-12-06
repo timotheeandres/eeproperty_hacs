@@ -173,11 +173,19 @@ class EePropertyMachineSensor(CoordinatorEntity, SensorEntity):
         if machine_type == TYPE_DRYER:
             if state == STATE_ACTIVATED:
                 return "mdi:tumble-dryer"
-            return "mdi:tumble-dryer-off"
-        else:  # WASHER
+            elif state == STATE_DEACTIVATED:
+                return "mdi:tumble-dryer-off"
+            else:
+                return "mdi:tumble-dryer-alert"
+        elif machine_type == TYPE_WASHER:  # WASHER
             if state == STATE_ACTIVATED:
                 return "mdi:washing-machine"
-            return "mdi:washing-machine-off"
+            elif state == STATE_DEACTIVATED:
+                return "mdi:washing-machine-off"
+            else:
+                return "mdi:washing-machine-alert"
+        else:
+            return "mdi:help-circle"
 
     @property
     def available(self) -> bool:
