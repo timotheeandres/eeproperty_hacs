@@ -1,4 +1,4 @@
-"""Constants for the eeProperty integration."""
+"""Constants for the eeproperty integration."""
 
 DOMAIN = "ch.eeproperty.vesta"
 

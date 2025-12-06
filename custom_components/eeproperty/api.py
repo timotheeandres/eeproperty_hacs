@@ -1,4 +1,4 @@
-"""API client for eeProperty washing machine system."""
+"""API client for eeproperty washing machine system."""
 import asyncio
 import logging
 
@@ -19,7 +19,7 @@ _LOGGER = logging.getLogger(__name__)
 
 
 class EePropertyApiClient:
-    """API client for eeProperty."""
+    """API client for eeproperty."""
 
     def __init__(
         self,

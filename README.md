@@ -1,6 +1,6 @@
-# eeProperty Home Assistant Integration
+# eeproperty Home Assistant Integration
 
-Home Assistant custom integration for eeProperty washing machine system.
+Home Assistant custom integration for eeproperty washing machine system.
 
 ## Features
 
@@ -30,7 +30,7 @@ Home Assistant custom integration for eeProperty washing machine system.
 
 1. Go to Settings → Devices & Services
 2. Click "Add Integration"
-3. Search for "eeProperty"
+3. Search for "eeproperty"
 4. Enter your credentials:
    - API URL (default: https://api.eeproperty.com)
    - Username
@@ -48,7 +48,7 @@ The integration creates sensor entities for each washing machine:
 
 ## API Customization
 
-You'll need to update the API endpoints in `api.py` to match the actual eeProperty API:
+You'll need to update the API endpoints in `api.py` to match the actual eeproperty API:
 
 - Authentication endpoint
 - Machine list endpoint
@@ -59,7 +59,7 @@ You'll need to update the API endpoints in `api.py` to match the actual eeProper
 
 This integration is a template. You need to:
 
-1. Update API endpoints to match actual eeProperty API
+1. Update API endpoints to match actual eeproperty API
 2. Adjust data models based on actual API responses
 3. Add additional entity types (switches, buttons) as needed
 4. Update authentication flow if different

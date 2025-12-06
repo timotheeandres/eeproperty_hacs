@@ -1,4 +1,4 @@
-"""Data models for eeProperty API."""
+"""Data models for eeproperty API."""
 from dataclasses import dataclass
 from typing import Literal
 

@@ -1,4 +1,4 @@
-"""Sensor platform for eeProperty."""
+"""Sensor platform for eeproperty."""
 from dataclasses import dataclass
 from datetime import timedelta
 import logging
@@ -45,7 +45,7 @@ async def async_setup_entry(
     entry: ConfigEntry,
     async_add_entities: AddEntitiesCallback,
 ) -> None:
-    """Set up eeProperty sensor based on a config entry."""
+    """Set up eeproperty sensor based on a config entry."""
     client: EePropertyApiClient = hass.data[DOMAIN][entry.entry_id]
 
     # Create coordinator for all machines
@@ -70,7 +70,7 @@ async def async_setup_entry(
 
 
 class EePropertyDataUpdateCoordinator(DataUpdateCoordinator[EePropertyData]):
-    """Class to manage fetching eeProperty data."""
+    """Class to manage fetching eeproperty data."""
 
     def __init__(
         self,
@@ -98,7 +98,7 @@ class EePropertyDataUpdateCoordinator(DataUpdateCoordinator[EePropertyData]):
 
 
 class EePropertyMachineSensor(CoordinatorEntity[EePropertyDataUpdateCoordinator], SensorEntity):
-    """Representation of an eeProperty washing machine sensor."""
+    """Representation of an eeproperty washing machine sensor."""
 
     def __init__(
         self,
@@ -189,7 +189,7 @@ class EePropertyBalanceSensor(CoordinatorEntity[EePropertyDataUpdateCoordinator]
         """Initialize the balance sensor."""
         super().__init__(coordinator)
         self._attr_unique_id = f"{DOMAIN}_balance"
-        self._attr_name = "eeProperty Balance"
+        self._attr_name = "eeproperty Balance"
 
     @property
     def native_value(self) -> int | None:

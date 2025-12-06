@@ -1,4 +1,4 @@
-"""Config flow for eeProperty integration."""
+"""Config flow for eeproperty integration."""
 import logging
 from typing import Any
 
@@ -22,7 +22,7 @@ STEP_USER_DATA_SCHEMA = vol.Schema(
 
 
 class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
-    """Handle a config flow for eeProperty."""
+    """Handle a config flow for eeproperty."""
 
     VERSION = 1
 
@@ -65,7 +65,7 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             data_schema=STEP_USER_DATA_SCHEMA,
             errors=errors,
             description_placeholders={
-                "code_info": "Your eeProperty building code",
+                "code_info": "Your eeproperty building code",
                 "pin_info": "Your personal PIN code",
             },
         )
@@ -89,7 +89,7 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
                 # Store credentials AND token for persistence
                 return self.async_create_entry(
-                    title=f"eeProperty ({self._client.user_label or self._code})",
+                    title=f"eeproperty ({self._client.user_label or self._code})",
                     data={
                         CONF_CODE: self._code,
                         CONF_PIN: self._pin,
