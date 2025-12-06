@@ -5,7 +5,6 @@ from typing import Any
 
 from homeassistant.components.sensor import SensorEntity, SensorDeviceClass
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.const import CURRENCY_CENT
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.update_coordinator import (
@@ -29,6 +28,7 @@ from .const import (
     STATE_ERROR,
     TYPE_DRYER,
     TYPE_WASHER,
+    CURRENCY,
 )
 
 _LOGGER = logging.getLogger(__name__)
@@ -37,9 +37,9 @@ SCAN_INTERVAL = timedelta(seconds=DEFAULT_SCAN_INTERVAL)
 
 
 async def async_setup_entry(
-    hass: HomeAssistant,
-    entry: ConfigEntry,
-    async_add_entities: AddEntitiesCallback,
+        hass: HomeAssistant,
+        entry: ConfigEntry,
+        async_add_entities: AddEntitiesCallback,
 ) -> None:
     """Set up eeProperty sensor based on a config entry."""
     client: EePropertyApiClient = hass.data[DOMAIN][entry.entry_id]
@@ -71,9 +71,9 @@ class EePropertyDataUpdateCoordinator(DataUpdateCoordinator):
     """Class to manage fetching eeProperty data."""
 
     def __init__(
-        self,
-        hass: HomeAssistant,
-        client: EePropertyApiClient,
+            self,
+            hass: HomeAssistant,
+            client: EePropertyApiClient,
     ) -> None:
         """Initialize."""
         super().__init__(
@@ -102,10 +102,10 @@ class EePropertyMachineSensor(CoordinatorEntity, SensorEntity):
     """Representation of an eeProperty washing machine sensor."""
 
     def __init__(
-        self,
-        coordinator: EePropertyDataUpdateCoordinator,
-        machine_number: int,
-        machine_type: str,
+            self,
+            coordinator: EePropertyDataUpdateCoordinator,
+            machine_number: int,
+            machine_type: str,
     ) -> None:
         """Initialize the sensor."""
         super().__init__(coordinator)
@@ -114,7 +114,7 @@ class EePropertyMachineSensor(CoordinatorEntity, SensorEntity):
         self._attr_unique_id = f"{DOMAIN}_machine_{machine_number}"
 
         # Set name based on type
-        type_name = "Washing Machine" if machine_type == TYPE_WASHER else "Dryer"
+        type_name = "Washing Machine" if machine_type == TYPE_WASHER else "Dryer" if machine_type == TYPE_DRYER else "Unknown"
         self._attr_name = f"{type_name} {machine_number}"
 
     def _get_machine_data(self) -> dict[str, Any] | None:
@@ -189,7 +189,7 @@ class EePropertyBalanceSensor(CoordinatorEntity, SensorEntity):
     """Sensor for user account balance."""
 
     _attr_device_class = SensorDeviceClass.MONETARY
-    _attr_native_unit_of_measurement = CURRENCY_CENT
+    _attr_native_unit_of_measurement = CURRENCY
 
     def __init__(self, coordinator: EePropertyDataUpdateCoordinator) -> None:
         """Initialize the balance sensor."""

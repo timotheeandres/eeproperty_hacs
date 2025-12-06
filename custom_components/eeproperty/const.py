@@ -1,6 +1,6 @@
 """Constants for the eeProperty integration."""
 
-DOMAIN = "eeproperty"
+DOMAIN = "ch.eeproperty.vesta"
 
 # API URLs
 LOGIN_API_URL = "https://login.eeproperty.com"
@@ -39,3 +39,6 @@ ATTR_ROOM = "room"
 ATTR_PRICING = "pricing"
 ATTR_COST_PER_CYCLE = "cost_per_cycle"
 ATTR_BALANCE = "balance"
+
+# Symbols
+CURRENCY = 'CHF'

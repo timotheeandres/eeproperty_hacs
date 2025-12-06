@@ -1,11 +1,12 @@
 {
   "domain": "eeproperty",
-  "name": "eeProperty Washing Machine",
+  "name": "eeProperty",
   "documentation": "https://github.com/timotheeandres/eeproperty_hacs",
   "issue_tracker": "https://github.com/timotheeandres/eeproperty_hacs/issues",
   "version": "0.1.0",
-  "codeowners": ["@yourusername"],
+  "codeowners": ["@timotheeandres"],
   "requirements": [],
   "iot_class": "cloud_polling",
-  "config_flow": true
+  "config_flow": true,
+  "after_dependencies": ["http"]
 }
