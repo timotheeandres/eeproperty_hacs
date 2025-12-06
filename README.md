@@ -1,5 +1,8 @@
 # eeproperty Home Assistant Integration
 
+:warning: This project, as well as this README, have been bootstraped using a Claude Agent. I will clean up everything
+before publishing any code to Home Assistant.
+
 Home Assistant custom integration for eeproperty washing machine system.
 
 ## Features
@@ -32,9 +35,9 @@ Home Assistant custom integration for eeproperty washing machine system.
 2. Click "Add Integration"
 3. Search for "eeproperty"
 4. Enter your credentials:
-   - API URL (default: https://api.eeproperty.com)
-   - Username
-   - Password
+    - API URL (default: https://api.eeproperty.com)
+    - Username
+    - Password
 5. Click Submit
 
 ## Entities
@@ -43,8 +46,8 @@ The integration creates sensor entities for each washing machine:
 
 - **Sensor**: Shows the current status (idle, running, completed, error)
 - **Attributes**:
-  - `remaining_time`: Time remaining in current cycle
-  - `cycle`: Current wash cycle name
+    - `remaining_time`: Time remaining in current cycle
+    - `cycle`: Current wash cycle name
 
 ## API Customization
 
