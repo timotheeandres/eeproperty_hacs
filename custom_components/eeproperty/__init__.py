@@ -14,13 +14,14 @@ from .const import (
     CONF_TOKEN,
     CONF_USER_ID,
     CONF_USER_LABEL,
-    DOMAIN,
+    DOMAIN as DOM,
 )
 
 _LOGGER = logging.getLogger(__name__)
 
 PLATFORMS: list[Platform] = [Platform.SENSOR]
 
+DOMAIN = DOM
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Set up eeproperty from a config entry."""

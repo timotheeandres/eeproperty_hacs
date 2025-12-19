@@ -1,6 +1,6 @@
 """Constants for the eeproperty integration."""
 
-DOMAIN = "ch.eeproperty.vesta"
+DOMAIN = "eeproperty"
 
 # API URLs
 LOGIN_API_URL = "https://login.eeproperty.com"
