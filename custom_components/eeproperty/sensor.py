@@ -188,7 +188,7 @@ class EePropertyBalanceSensor(CoordinatorEntity[EePropertyDataUpdateCoordinator]
         """Initialize the balance sensor."""
         super().__init__(coordinator)
         self._attr_unique_id = f"{DOMAIN}_balance"
-        self._attr_name = "eeproperty Balance"
+        self._attr_name = "Balance"
 
     @property
     def native_value(self) -> int | None:
