@@ -3,9 +3,11 @@ import logging
 from dataclasses import dataclass
 from datetime import timedelta
 
+from homeassistant.components.insteon.api.device import async_add_devices
 from homeassistant.components.sensor import SensorEntity, SensorDeviceClass
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
+from homeassistant.helpers.device_registry import DeviceInfo
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.update_coordinator import (
     CoordinatorEntity,
@@ -126,6 +128,10 @@ class EePropertyMachineSensor(CoordinatorEntity[EePropertyDataUpdateCoordinator]
         return None
 
     @property
+    def device_info(self) -> DeviceInfo | None:
+        return DeviceInfo(identifiers={(DOMAIN, self.unique_id)}, name=self.name)
+
+    @property
     def native_value(self) -> str | None:
         """Return the state of the sensor."""
         machine = self._get_machine_data()
@@ -189,6 +195,10 @@ class EePropertyBalanceSensor(CoordinatorEntity[EePropertyDataUpdateCoordinator]
         super().__init__(coordinator)
         self._attr_unique_id = f"{DOMAIN}_balance"
         self._attr_name = "Balance"
+
+    @property
+    def device_info(self) -> DeviceInfo | None:
+        return DeviceInfo(identifiers={(DOMAIN, self.unique_id)}, name=self.name)
 
     @property
     def native_value(self) -> int | None:
