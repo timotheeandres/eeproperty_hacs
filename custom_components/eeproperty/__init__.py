@@ -28,14 +28,14 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Set up eeproperty from a config entry."""
     hass.data.setdefault(DOMAIN, {})
 
-    code = entry.data[CONF_BUILDING_CODE]
-    pin = entry.data[CONF_PERSONAL_CODE]
+    building_code = entry.data[CONF_BUILDING_CODE]
+    personal_code = entry.data[CONF_PERSONAL_CODE]
     token = entry.data.get(CONF_TOKEN)
     user_id = entry.data.get(CONF_USER_ID)
     user_label = entry.data.get(CONF_USER_LABEL)
 
     session = async_get_clientsession(hass)
-    client = EePropertyApiClient(code, pin, session, token, user_id, user_label)
+    client = EePropertyApiClient(building_code, personal_code, session, token, user_id, user_label)
 
     # Validate the stored token
     if token:

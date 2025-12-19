@@ -23,16 +23,16 @@ class EePropertyApiClient:
 
     def __init__(
         self,
-        code: str,
-        pin: str,
+        building_code: str,
+        personal_code: str,
         session: aiohttp.ClientSession,
         token: str | None = None,
         user_id: int | None = None,
         user_label: str | None = None,
     ) -> None:
         """Initialize the API client."""
-        self._code = code
-        self._pin = pin
+        self._building_code = building_code
+        self._personal_code = personal_code
         self._session = session
         self._token = token
         self._user_id = user_id
@@ -53,7 +53,7 @@ class EePropertyApiClient:
         try:
             async with self._session.post(
                 f"{LOGIN_API_URL}/api/v3/mobile/user/login",
-                json={"code": self._code, "pin": self._pin},
+                json={"code": self._building_code, "pin": self._personal_code},
                 headers=self._get_headers(include_token=False),
                 timeout=aiohttp.ClientTimeout(total=10),
             ) as response:
