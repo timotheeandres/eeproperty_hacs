@@ -2,6 +2,7 @@
 import logging
 
 from homeassistant.config_entries import ConfigEntry
+from homeassistant.const import CONF_TOKEN
 from homeassistant.const import Platform
 from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import ConfigEntryAuthFailed
@@ -9,9 +10,8 @@ from homeassistant.helpers.aiohttp_client import async_get_clientsession
 
 from .api import EePropertyApiClient
 from .const import (
-    CONF_CODE,
-    CONF_PIN,
-    CONF_TOKEN,
+    CONF_BUILDING_CODE,
+    CONF_PERSONAL_CODE,
     CONF_USER_ID,
     CONF_USER_LABEL,
     DOMAIN as DOM,
@@ -23,12 +23,13 @@ PLATFORMS: list[Platform] = [Platform.SENSOR]
 
 DOMAIN = DOM
 
+
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Set up eeproperty from a config entry."""
     hass.data.setdefault(DOMAIN, {})
 
-    code = entry.data[CONF_CODE]
-    pin = entry.data[CONF_PIN]
+    code = entry.data[CONF_BUILDING_CODE]
+    pin = entry.data[CONF_PERSONAL_CODE]
     token = entry.data.get(CONF_TOKEN)
     user_id = entry.data.get(CONF_USER_ID)
     user_label = entry.data.get(CONF_USER_LABEL)

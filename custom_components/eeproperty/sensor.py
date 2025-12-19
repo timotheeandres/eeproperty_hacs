@@ -1,11 +1,10 @@
 """Sensor platform for eeproperty."""
+import logging
 from dataclasses import dataclass
 from datetime import timedelta
-import logging
 
 from homeassistant.components.sensor import SensorEntity, SensorDeviceClass
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.const import CURRENCY_CENT
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.update_coordinator import (
@@ -159,16 +158,16 @@ class EePropertyMachineSensor(CoordinatorEntity[EePropertyDataUpdateCoordinator]
 
         # Choose icon based on type and state
         if machine.type == "DRYER":
-            if machine.state == "ACTIVATED":
+            if machine.state == "DEACTIVATED":
                 return "mdi:tumble-dryer"
-            elif machine.state == "DEACTIVATED":
+            elif machine.state == "ACTIVATED":
                 return "mdi:tumble-dryer-off"
             else:
                 return "mdi:tumble-dryer-alert"
         else:  # WASHER
-            if machine.state == "ACTIVATED":
+            if machine.state == "DEACTIVATED":
                 return "mdi:washing-machine"
-            elif machine.state == "DEACTIVATED":
+            elif machine.state == "ACTIVATED":
                 return "mdi:washing-machine-off"
             else:
                 return "mdi:washing-machine-alert"

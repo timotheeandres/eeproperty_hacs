@@ -1,0 +1,20 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Connexion à eeproperty",
+        "data": {
+          "building_code": "Code immeuble",
+          "personal_code": "Code personnel"
+        }
+      },
+      "security_code": {
+        "title": "Authentification à deux facteurs",
+        "description": "Saisissez le code de sécurité généré par votre application OTP.",
+        "data": {
+          "2fa_code": "Code de sécurité"
+        }
+      }
+    }
+  }
+}

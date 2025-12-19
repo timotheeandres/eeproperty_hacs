@@ -7,9 +7,9 @@ LOGIN_API_URL = "https://login.eeproperty.com"
 VESTA_API_URL = "https://vesta.eeproperty.com"
 
 # Configuration
-CONF_CODE = "code"
-CONF_PIN = "pin"
-CONF_TOKEN = "token"
+CONF_BUILDING_CODE = "building_code"
+CONF_PERSONAL_CODE = "personal_code"
+CONF_2FA = "2fa_code"
 CONF_USER_ID = "user_id"
 CONF_USER_LABEL = "user_label"
 

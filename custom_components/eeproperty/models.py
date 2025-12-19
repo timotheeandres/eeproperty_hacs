@@ -26,7 +26,7 @@ class Machine:
             number=data["number"],
             state=data["state"],
             pricing=data["pricing"],
-            cost_per_cycle=data["costPerCycle"],
+            cost_per_cycle=data["costPerCycle"] / 100,
             room=data.get("room"),
         )
 
@@ -130,7 +130,7 @@ class User:
             last_name=data["lastName"],
             language=data["language"],
             unlimited_balance=data["unlimitedBalance"],
-            balance=data["balance"],
+            balance=data["balance"] / 100,
             secret=data["secret"],
             address=data["address"],
             email=data["email"],
