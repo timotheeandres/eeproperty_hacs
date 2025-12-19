@@ -1,12 +1,12 @@
 {
   "domain": "eeproperty",
   "name": "eeproperty",
-  "documentation": "https://github.com/timotheeandres/eeproperty_hacs",
-  "issue_tracker": "https://github.com/timotheeandres/eeproperty_hacs/issues",
-  "version": "0.1.0",
+  "after_dependencies": ["http"],
   "codeowners": ["@timotheeandres"],
-  "requirements": [],
-  "iot_class": "cloud_polling",
   "config_flow": true,
-  "after_dependencies": ["http"]
+  "documentation": "https://github.com/timotheeandres/eeproperty_hacs",
+  "iot_class": "cloud_polling",
+  "issue_tracker": "https://github.com/timotheeandres/eeproperty_hacs/issues",
+  "requirements": [],
+  "version": "0.1.0"
 }
