@@ -9,7 +9,7 @@ from homeassistant.data_entry_flow import FlowResult
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 
 from .api import EePropertyApiClient
-from .const import CONF_USER_ID, CONF_USER_LABEL, DOMAIN, CONF_2FA, CONF_BUILDING_CODE, CONF_PERSONAL_CODE
+from .const import CONF_2FA, CONF_BUILDING_CODE, CONF_PERSONAL_CODE, CONF_USER_ID, CONF_USER_LABEL, DOMAIN
 
 _LOGGER = logging.getLogger(__name__)
 

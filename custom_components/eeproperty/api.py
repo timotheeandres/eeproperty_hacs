@@ -22,13 +22,13 @@ class EePropertyApiClient:
     """API client for eeproperty."""
 
     def __init__(
-        self,
-        building_code: str,
-        personal_code: str,
-        session: aiohttp.ClientSession,
-        token: str | None = None,
-        user_id: int | None = None,
-        user_label: str | None = None,
+            self,
+            building_code: str,
+            personal_code: str,
+            session: aiohttp.ClientSession,
+            token: str | None = None,
+            user_id: int | None = None,
+            user_label: str | None = None,
     ) -> None:
         """Initialize the API client."""
         self._building_code = building_code
@@ -52,10 +52,10 @@ class EePropertyApiClient:
         """Step 1: Login with code and PIN to get user ID."""
         try:
             async with self._session.post(
-                f"{LOGIN_API_URL}/api/v3/mobile/user/login",
-                json={"code": self._building_code, "pin": self._personal_code},
-                headers=self._get_headers(include_token=False),
-                timeout=aiohttp.ClientTimeout(total=10),
+                    f"{LOGIN_API_URL}/api/v3/mobile/user/login",
+                    json={"code": self._building_code, "pin": self._personal_code},
+                    headers=self._get_headers(include_token=False),
+                    timeout=aiohttp.ClientTimeout(total=10),
             ) as response:
                 if response.status == 200:
                     data = await response.json()
@@ -82,10 +82,10 @@ class EePropertyApiClient:
 
         try:
             async with self._session.post(
-                f"{LOGIN_API_URL}/api/v3/mobile/user/send-security-code",
-                json={"userId": str(self._user_id)},
-                headers=self._get_headers(include_token=False),
-                timeout=aiohttp.ClientTimeout(total=10),
+                    f"{LOGIN_API_URL}/api/v3/mobile/user/send-security-code",
+                    json={"userId": str(self._user_id)},
+                    headers=self._get_headers(include_token=False),
+                    timeout=aiohttp.ClientTimeout(total=10),
             ) as response:
                 if response.status == 200:
                     data = await response.json()
@@ -109,10 +109,10 @@ class EePropertyApiClient:
 
         try:
             async with self._session.post(
-                f"{LOGIN_API_URL}/api/v3/mobile/user/security-code",
-                json={"userId": str(self._user_id), "securityCode": security_code},
-                headers=self._get_headers(include_token=False),
-                timeout=aiohttp.ClientTimeout(total=10),
+                    f"{LOGIN_API_URL}/api/v3/mobile/user/security-code",
+                    json={"userId": str(self._user_id), "securityCode": security_code},
+                    headers=self._get_headers(include_token=False),
+                    timeout=aiohttp.ClientTimeout(total=10),
             ) as response:
                 if response.status == 200:
                     data = await response.json()
@@ -138,9 +138,9 @@ class EePropertyApiClient:
 
         try:
             async with self._session.get(
-                f"{LOGIN_API_URL}/api/v3/mobile/user/refresh-data",
-                headers=self._get_headers(),
-                timeout=aiohttp.ClientTimeout(total=10),
+                    f"{LOGIN_API_URL}/api/v3/mobile/user/refresh-data",
+                    headers=self._get_headers(),
+                    timeout=aiohttp.ClientTimeout(total=10),
             ) as response:
                 if response.status == 200:
                     data = await response.json()
@@ -162,9 +162,9 @@ class EePropertyApiClient:
 
         try:
             async with self._session.get(
-                f"{LOGIN_API_URL}/api/v3/mobile/user/refresh-data",
-                headers=self._get_headers(),
-                timeout=aiohttp.ClientTimeout(total=10),
+                    f"{LOGIN_API_URL}/api/v3/mobile/user/refresh-data",
+                    headers=self._get_headers(),
+                    timeout=aiohttp.ClientTimeout(total=10),
             ) as response:
                 if response.status == 200:
                     data = await response.json()
@@ -181,9 +181,9 @@ class EePropertyApiClient:
 
         try:
             async with self._session.get(
-                f"{VESTA_API_URL}/api/v3/mobile/machines",
-                headers=self._get_headers(),
-                timeout=aiohttp.ClientTimeout(total=10),
+                    f"{VESTA_API_URL}/api/v3/mobile/machines",
+                    headers=self._get_headers(),
+                    timeout=aiohttp.ClientTimeout(total=10),
             ) as response:
                 if response.status == 200:
                     data = await response.json()
@@ -206,10 +206,10 @@ class EePropertyApiClient:
 
         try:
             async with self._session.get(
-                f"{VESTA_API_URL}/api/v3/mobile/uses",
-                params={"length": length},
-                headers=self._get_headers(),
-                timeout=aiohttp.ClientTimeout(total=10),
+                    f"{VESTA_API_URL}/api/v3/mobile/uses",
+                    params={"length": length},
+                    headers=self._get_headers(),
+                    timeout=aiohttp.ClientTimeout(total=10),
             ) as response:
                 if response.status == 200:
                     data = await response.json()

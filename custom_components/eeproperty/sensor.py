@@ -3,8 +3,7 @@ import logging
 from dataclasses import dataclass
 from datetime import timedelta
 
-from homeassistant.components.insteon.api.device import async_add_devices
-from homeassistant.components.sensor import SensorEntity, SensorDeviceClass
+from homeassistant.components.sensor import SensorDeviceClass, SensorEntity
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.device_registry import DeviceInfo
@@ -16,16 +15,8 @@ from homeassistant.helpers.update_coordinator import (
 )
 
 from .api import EePropertyApiClient
-from .const import (
-    ATTR_COST_PER_CYCLE,
-    ATTR_MACHINE_NUMBER,
-    ATTR_MACHINE_TYPE,
-    ATTR_PRICING,
-    ATTR_ROOM,
-    DEFAULT_SCAN_INTERVAL,
-    DOMAIN,
-    CURRENCY,
-)
+from .const import (ATTR_COST_PER_CYCLE, ATTR_MACHINE_NUMBER, ATTR_MACHINE_TYPE, ATTR_PRICING, ATTR_ROOM, CURRENCY,
+                    DEFAULT_SCAN_INTERVAL, DOMAIN)
 from .models import Machine, MachineType, User
 
 _LOGGER = logging.getLogger(__name__)
@@ -42,9 +33,9 @@ class EePropertyData:
 
 
 async def async_setup_entry(
-    hass: HomeAssistant,
-    entry: ConfigEntry,
-    async_add_entities: AddEntitiesCallback,
+        hass: HomeAssistant,
+        entry: ConfigEntry,
+        async_add_entities: AddEntitiesCallback,
 ) -> None:
     """Set up eeproperty sensor based on a config entry."""
     client: EePropertyApiClient = hass.data[DOMAIN][entry.entry_id]
@@ -74,9 +65,9 @@ class EePropertyDataUpdateCoordinator(DataUpdateCoordinator[EePropertyData]):
     """Class to manage fetching eeproperty data."""
 
     def __init__(
-        self,
-        hass: HomeAssistant,
-        client: EePropertyApiClient,
+            self,
+            hass: HomeAssistant,
+            client: EePropertyApiClient,
     ) -> None:
         """Initialize."""
         super().__init__(
@@ -102,10 +93,10 @@ class EePropertyMachineSensor(CoordinatorEntity[EePropertyDataUpdateCoordinator]
     """Representation of an eeproperty washing machine sensor."""
 
     def __init__(
-        self,
-        coordinator: EePropertyDataUpdateCoordinator,
-        machine_number: int,
-        machine_type: MachineType,
+            self,
+            coordinator: EePropertyDataUpdateCoordinator,
+            machine_number: int,
+            machine_type: MachineType,
     ) -> None:
         """Initialize the sensor."""
         super().__init__(coordinator)

@@ -1,8 +1,12 @@
 {
   "domain": "eeproperty",
   "name": "eeproperty",
-  "after_dependencies": ["http"],
-  "codeowners": ["@timotheeandres"],
+  "after_dependencies": [
+    "http"
+  ],
+  "codeowners": [
+    "@timotheeandres"
+  ],
   "config_flow": true,
   "documentation": "https://github.com/timotheeandres/eeproperty_hacs",
   "iot_class": "cloud_polling",
