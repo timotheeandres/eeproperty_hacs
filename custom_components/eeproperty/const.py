@@ -16,7 +16,7 @@ CONF_USER_ID = "user_id"
 CONF_USER_LABEL = "user_label"
 
 # Default values
-DEFAULT_SCAN_INTERVAL = 30  # seconds
+DEFAULT_SCAN_INTERVAL = 15  # seconds
 
 # API Headers
 HEADER_TOKEN = "X-Token"

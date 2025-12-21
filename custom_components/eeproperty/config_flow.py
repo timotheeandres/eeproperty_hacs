@@ -4,12 +4,14 @@ from typing import Any
 
 import voluptuous as vol
 from homeassistant import config_entries
+from homeassistant.config_entries import ConfigFlowResult
 from homeassistant.const import CONF_TOKEN
-from homeassistant.data_entry_flow import FlowResult
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 
 from .api import EePropertyApiClient
-from .const import CONF_2FA, CONF_BUILDING_CODE, CONF_PERSONAL_CODE, CONF_USER_ID, CONF_USER_LABEL, DOMAIN
+from .const import CONF_2FA, CONF_BUILDING_CODE, CONF_PERSONAL_CODE, CONF_TOKEN_DATE, CONF_TOKEN_EXPIRY, CONF_USER_ID, \
+    CONF_USER_LABEL, \
+    DOMAIN
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -28,38 +30,33 @@ STEP_SECURITY_CODE_SCHEMA = vol.Schema(
 
 
 class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
-    """Handle a config flow for eeproperty."""
-
     VERSION = 1
 
     def __init__(self) -> None:
-        """Initialize the config flow."""
         self._client: EePropertyApiClient | None = None
         self._building_code: str | None = None
         self._personal_code: str | None = None
 
     async def async_step_user(
             self, user_input: dict[str, Any] | None = None
-    ) -> FlowResult:
-        """Handle the initial step - get code and PIN."""
+    ) -> ConfigFlowResult:
+        """Handle the initial step: get code and PIN."""
         errors: dict[str, str] = {}
 
         if user_input is not None:
-            # Store credentials and test login
             session = async_get_clientsession(self.hass)
-            self._client = EePropertyApiClient(
-                user_input[CONF_BUILDING_CODE],
-                user_input[CONF_PERSONAL_CODE],
-                session,
-            )
+            self._building_code = user_input[CONF_BUILDING_CODE]
+            self._personal_code = user_input[CONF_PERSONAL_CODE]
 
-            # Try to login and send security code
+            await self.async_set_unique_id(f"{self._building_code}_{self._client.user_id}")
+            self._abort_if_unique_id_configured()
+
+            self._client = EePropertyApiClient(self._building_code, self._personal_code, session)
+
             if await self._client.login():
                 if await self._client.send_security_code():
-                    # Store data for next step
                     self._building_code = user_input[CONF_BUILDING_CODE]
                     self._personal_code = user_input[CONF_PERSONAL_CODE]
-                    # Move to security code verification
                     return await self.async_step_security_code()
                 else:
                     errors["base"] = "cannot_send_code"
@@ -100,5 +97,6 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         return self.async_show_form(
             step_id="security_code",
             data_schema=STEP_SECURITY_CODE_SCHEMA,
-            errors=errors
+            errors=errors,
+            last_step=True
         )

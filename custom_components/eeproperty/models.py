@@ -17,6 +17,7 @@ class Machine:
     pricing: PricingType
     cost_per_cycle: int
     room: str | None = None
+    user_label: str | None = None
 
     @classmethod
     def from_dict(cls, data: dict) -> "Machine":
@@ -28,23 +29,8 @@ class Machine:
             pricing=data["pricing"],
             cost_per_cycle=data["costPerCycle"] / 100,
             room=data.get("room"),
+            user_label=data.get("userLabel"),
         )
-
-    @property
-    def friendly_state(self) -> str:
-        """Return a user-friendly state name."""
-        if self.state == "DEACTIVATED":
-            return "Available"
-        elif self.state == "ACTIVATED":
-            return "Occupied"
-        elif self.state == "ERROR":
-            return "Unavailable"
-        return self.state
-
-    @property
-    def type_name(self) -> str:
-        """Return a user-friendly type name."""
-        return "Washing Machine" if self.type == "WASHER" else "Dryer"
 
 
 @dataclass
