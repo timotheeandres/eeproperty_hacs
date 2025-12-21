@@ -1,7 +1,6 @@
 """Sensor platform for eeproperty."""
 import logging
-from dataclasses import dataclass
-from datetime import timedelta
+from typing import TYPE_CHECKING
 
 from homeassistant.components.sensor import SensorDeviceClass, SensorEntity
 from homeassistant.config_entries import ConfigEntry
@@ -10,91 +9,28 @@ from homeassistant.helpers.device_registry import DeviceInfo
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.update_coordinator import (
     CoordinatorEntity,
-    DataUpdateCoordinator,
-    UpdateFailed,
 )
 
-from .api import EePropertyApiClient
 from .const import (ATTR_COST_PER_CYCLE, ATTR_MACHINE_NUMBER, ATTR_MACHINE_TYPE, ATTR_PRICING, ATTR_ROOM, CURRENCY,
-                    DEFAULT_SCAN_INTERVAL, DOMAIN)
-from .models import Machine, MachineType, User
+                    DOMAIN)
+from .models import Machine, MachineType
+
+if TYPE_CHECKING:
+    from .coordinator import EePropertyDataUpdateCoordinator
 
 _LOGGER = logging.getLogger(__name__)
 
-SCAN_INTERVAL = timedelta(seconds=DEFAULT_SCAN_INTERVAL)
+
+async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_entities: AddEntitiesCallback) -> None:
+    pass
 
 
-@dataclass
-class EePropertyData:
-    """Data class for coordinator data."""
-
-    machines: list[Machine]
-    user: User | None
-
-
-async def async_setup_entry(
-        hass: HomeAssistant,
-        entry: ConfigEntry,
-        async_add_entities: AddEntitiesCallback,
-) -> None:
-    """Set up eeproperty sensor based on a config entry."""
-    client: EePropertyApiClient = hass.data[DOMAIN][entry.entry_id]
-
-    # Create coordinator for all machines
-    coordinator = EePropertyDataUpdateCoordinator(hass, client)
-
-    # Fetch initial data
-    await coordinator.async_config_entry_first_refresh()
-
-    entities: list[SensorEntity] = []
-
-    # Create sensor for each machine
-    if coordinator.data and coordinator.data.machines:
-        for machine in coordinator.data.machines:
-            entities.append(
-                EePropertyMachineSensor(coordinator, machine.number, machine.type)
-            )
-
-    # Create balance sensor
-    entities.append(EePropertyBalanceSensor(coordinator))
-
-    async_add_entities(entities)
-
-
-class EePropertyDataUpdateCoordinator(DataUpdateCoordinator[EePropertyData]):
-    """Class to manage fetching eeproperty data."""
-
-    def __init__(
-            self,
-            hass: HomeAssistant,
-            client: EePropertyApiClient,
-    ) -> None:
-        """Initialize."""
-        super().__init__(
-            hass,
-            _LOGGER,
-            name=DOMAIN,
-            update_interval=SCAN_INTERVAL,
-        )
-        self.client = client
-
-    async def _async_update_data(self) -> EePropertyData:
-        """Update data via library."""
-        try:
-            machines = await self.client.get_machines()
-            user_data = await self.client.get_user_data()
-
-            return EePropertyData(machines=machines, user=user_data)
-        except Exception as err:
-            raise UpdateFailed(f"Error communicating with API: {err}") from err
-
-
-class EePropertyMachineSensor(CoordinatorEntity[EePropertyDataUpdateCoordinator], SensorEntity):
+class EePropertyMachineSensor(CoordinatorEntity['EePropertyDataUpdateCoordinator'], SensorEntity):
     """Representation of an eeproperty washing machine sensor."""
 
     def __init__(
             self,
-            coordinator: EePropertyDataUpdateCoordinator,
+            coordinator: 'EePropertyDataUpdateCoordinator',
             machine_number: int,
             machine_type: MachineType,
     ) -> None:
@@ -175,13 +111,13 @@ class EePropertyMachineSensor(CoordinatorEntity[EePropertyDataUpdateCoordinator]
         return self._get_machine_data() is not None
 
 
-class EePropertyBalanceSensor(CoordinatorEntity[EePropertyDataUpdateCoordinator], SensorEntity):
+class EePropertyBalanceSensor(CoordinatorEntity['EePropertyDataUpdateCoordinator'], SensorEntity):
     """Sensor for user account balance."""
 
     _attr_device_class = SensorDeviceClass.MONETARY
     _attr_native_unit_of_measurement = CURRENCY
 
-    def __init__(self, coordinator: EePropertyDataUpdateCoordinator) -> None:
+    def __init__(self, coordinator: 'EePropertyDataUpdateCoordinator') -> None:
         """Initialize the balance sensor."""
         super().__init__(coordinator)
         self._attr_unique_id = f"{DOMAIN}_balance"

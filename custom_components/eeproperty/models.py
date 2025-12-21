@@ -213,16 +213,8 @@ class TokenResponse:
 
 
 @dataclass
-class ApiResponse:
-    """Generic API response with status and message."""
+class EePropertyData:
+    """Data class for coordinator data."""
 
-    status: int
-    message: str
-
-    @classmethod
-    def from_dict(cls, data: dict) -> "ApiResponse":
-        """Create ApiResponse from API response dictionary."""
-        return cls(
-            status=data["status"],
-            message=data["message"],
-        )
+    machines: list[Machine]
+    user: User | None

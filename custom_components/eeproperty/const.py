@@ -10,6 +10,8 @@ VESTA_API_URL = "https://vesta.eeproperty.com"
 CONF_BUILDING_CODE = "building_code"
 CONF_PERSONAL_CODE = "personal_code"
 CONF_2FA = "2fa_code"
+CONF_TOKEN_DATE = "token_date"
+CONF_TOKEN_EXPIRY = "token_expiry"
 CONF_USER_ID = "user_id"
 CONF_USER_LABEL = "user_label"
 

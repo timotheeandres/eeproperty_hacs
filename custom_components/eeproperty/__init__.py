@@ -8,13 +8,8 @@ from homeassistant.exceptions import ConfigEntryAuthFailed
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 
 from .api import EePropertyApiClient
-from .const import (
-    CONF_BUILDING_CODE,
-    CONF_PERSONAL_CODE,
-    CONF_USER_ID,
-    CONF_USER_LABEL,
-    DOMAIN as DOM,
-)
+from .const import (CONF_BUILDING_CODE, CONF_PERSONAL_CODE, CONF_TOKEN_DATE, CONF_TOKEN_EXPIRY, CONF_USER_ID,
+                    CONF_USER_LABEL, DOMAIN as DOM)
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -30,11 +25,14 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     building_code = entry.data[CONF_BUILDING_CODE]
     personal_code = entry.data[CONF_PERSONAL_CODE]
     token = entry.data.get(CONF_TOKEN)
+    token_date = entry.data.get(CONF_TOKEN_DATE)
+    token_expiry = entry.data.get(CONF_TOKEN_EXPIRY)
     user_id = entry.data.get(CONF_USER_ID)
     user_label = entry.data.get(CONF_USER_LABEL)
 
     session = async_get_clientsession(hass)
-    client = EePropertyApiClient(building_code, personal_code, session, token, user_id, user_label)
+    client = EePropertyApiClient(building_code, personal_code, session, user_id, user_label, token, token_date,
+                                 token_expiry)
 
     # Validate the stored token
     if token:

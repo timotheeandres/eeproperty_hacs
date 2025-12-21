@@ -74,28 +74,22 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
     async def async_step_security_code(
             self, user_input: dict[str, Any] | None = None
-    ) -> FlowResult:
+    ) -> ConfigFlowResult:
         """Handle the security code verification step."""
         errors: dict[str, str] = {}
 
         if user_input is not None:
             security_code = user_input[CONF_2FA]
 
-            # Verify the security code
             if await self._client.verify_security_code(security_code):
-                # Set a unique ID for this config entry
-                await self.async_set_unique_id(
-                    f"{self._building_code}_{self._client.user_id}"
-                )
-                self._abort_if_unique_id_configured()
-
-                # Store credentials AND token for persistence
                 return self.async_create_entry(
                     title=f"eeproperty ({self._client.user_label or self._building_code})",
                     data={
                         CONF_BUILDING_CODE: self._building_code,
                         CONF_PERSONAL_CODE: self._personal_code,
                         CONF_TOKEN: self._client._token,
+                        CONF_TOKEN_DATE: self._client._token_date,
+                        CONF_TOKEN_EXPIRY: self._client._token_expiry,
                         CONF_USER_ID: self._client.user_id,
                         CONF_USER_LABEL: self._client.user_label,
                     },

@@ -1,6 +1,7 @@
 """API client for eeproperty washing machine system."""
 import asyncio
 import logging
+from datetime import datetime, timedelta
 
 import aiohttp
 
@@ -21,22 +22,34 @@ _LOGGER = logging.getLogger(__name__)
 class EePropertyApiClient:
     """API client for eeproperty."""
 
-    def __init__(
-            self,
-            building_code: str,
-            personal_code: str,
-            session: aiohttp.ClientSession,
-            token: str | None = None,
-            user_id: int | None = None,
-            user_label: str | None = None,
-    ) -> None:
+    _building_code: str
+    _personal_code: str
+    _session: aiohttp.ClientSession
+    _token: str | None
+    _token_date: datetime | None
+    _token_expiry: int | None
+    _user_id: int | None
+    _user_label: str | None
+
+    def __init__(self,
+                 building_code: str,
+                 personal_code: str,
+                 session:
+                 aiohttp.ClientSession,
+                 user_id: int | None = None,
+                 user_label: str | None = None,
+                 token: str | None = None,
+                 token_date: datetime | None = None,
+                 token_expiry: int | None = None) -> None:
         """Initialize the API client."""
         self._building_code = building_code
         self._personal_code = personal_code
         self._session = session
-        self._token = token
         self._user_id = user_id
         self._user_label = user_label
+        self._token = token
+        self._token_date = token_date
+        self._token_expiry = token_expiry
 
     def _get_headers(self, include_token: bool = True) -> dict[str, str]:
         """Get standard headers for API requests."""
@@ -63,9 +76,10 @@ class EePropertyApiClient:
                     if login_response.status == 0:
                         self._user_id = login_response.user_id
                         self._user_label = login_response.user_label
-                        _LOGGER.debug("Login successful for user %s", self._user_label)
+                        _LOGGER.info("Login successful for user %s", self._user_label)
                         return True
                 _LOGGER.error("Login failed with status %s", response.status)
+                _LOGGER.debug("Response: %s", response)
                 return False
         except asyncio.TimeoutError:
             _LOGGER.error("Timeout during login")
@@ -93,6 +107,7 @@ class EePropertyApiClient:
                         _LOGGER.debug("Security code sent successfully")
                         return True
                 _LOGGER.error("Failed to send security code with status %s", response.status)
+                _LOGGER.debug("Response: %s", response)
                 return False
         except asyncio.TimeoutError:
             _LOGGER.error("Timeout sending security code")
@@ -119,9 +134,12 @@ class EePropertyApiClient:
                     token_response = TokenResponse.from_dict(data)
                     if token_response.status == 0:
                         self._token = token_response.token
-                        _LOGGER.debug("Authentication successful, token received")
+                        self._token_date = datetime.now()
+                        self._token_expiry = token_response.token_refresh_interval
+                        _LOGGER.info("Authentication successful, token received")
                         return True
                 _LOGGER.error("Security code verification failed with status %s", response.status)
+                _LOGGER.debug("Response: %s", response)
                 return False
         except asyncio.TimeoutError:
             _LOGGER.error("Timeout verifying security code")
@@ -147,6 +165,7 @@ class EePropertyApiClient:
                     if data.get("status") == 0:
                         return User.from_dict(data["user"])
                 _LOGGER.error("Failed to get user data: %s", response.status)
+                _LOGGER.debug("Response: %s", response)
                 return None
         except asyncio.TimeoutError:
             _LOGGER.error("Timeout getting user data")
@@ -158,6 +177,11 @@ class EePropertyApiClient:
     async def validate_token(self) -> bool:
         """Validate that the stored token is still working."""
         if not self.is_authenticated:
+            return False
+
+        if (self._token_date is not None
+                and self._token_expiry is not None
+                and self._token_date + timedelta(seconds=self._token_expiry) < datetime.now()):
             return False
 
         try:
