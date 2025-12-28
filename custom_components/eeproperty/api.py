@@ -7,6 +7,7 @@ import aiohttp
 
 from .const import (
     APP_VERSION,
+    DATETIME_FORMAT,
     HEADER_APP_VERSION,
     HEADER_REQUESTED_WITH,
     HEADER_TOKEN,
@@ -26,7 +27,7 @@ class EePropertyApiClient:
     _personal_code: str
     _session: aiohttp.ClientSession
     _token: str | None
-    _token_date: datetime | None
+    _token_date: str | None
     _token_expiry: int | None
     _user_id: int | None
     _user_label: str | None
@@ -39,10 +40,10 @@ class EePropertyApiClient:
                  user_id: int | None = None,
                  user_label: str | None = None,
                  token: str | None = None,
-                 token_date: datetime | None = None,
+                 token_date: str | None = None,
                  token_expiry: int | None = None) -> None:
         """Initialize the API client."""
-        self._building_code = building_code
+        self._building_code = building_code.upper()
         self._personal_code = personal_code
         self._session = session
         self._user_id = user_id
@@ -76,7 +77,7 @@ class EePropertyApiClient:
                     if login_response.status == 0:
                         self._user_id = login_response.user_id
                         self._user_label = login_response.user_label
-                        _LOGGER.info("Login successful for user %s", self._user_label)
+                        _LOGGER.debug("Login successful for user %s", self._user_label)
                         return True
                 _LOGGER.error("Login failed with status %s", response.status)
                 _LOGGER.debug("Response: %s", response)
@@ -134,9 +135,9 @@ class EePropertyApiClient:
                     token_response = TokenResponse.from_dict(data)
                     if token_response.status == 0:
                         self._token = token_response.token
-                        self._token_date = datetime.now()
+                        self._token_date = datetime.now().strftime(DATETIME_FORMAT)
                         self._token_expiry = token_response.token_refresh_interval
-                        _LOGGER.info("Authentication successful, token received")
+                        _LOGGER.debug("Authentication successful, token received")
                         return True
                 _LOGGER.error("Security code verification failed with status %s", response.status)
                 _LOGGER.debug("Response: %s", response)
@@ -179,10 +180,13 @@ class EePropertyApiClient:
         if not self.is_authenticated:
             return False
 
-        if (self._token_date is not None
-                and self._token_expiry is not None
-                and self._token_date + timedelta(seconds=self._token_expiry) < datetime.now()):
-            return False
+        if self._token_date is not None and self._token_expiry is not None:
+            if datetime.now() < (expiration_time := datetime.strptime(self._token_date, DATETIME_FORMAT) + timedelta(
+                    seconds=self._token_expiry)):
+                _LOGGER.debug("Token still valid")
+                return True
+            else:
+                _LOGGER.debug("Token expired on %s", expiration_time)
 
         try:
             async with self._session.get(
@@ -250,15 +254,12 @@ class EePropertyApiClient:
 
     @property
     def user_id(self) -> int | None:
-        """Return the user ID."""
         return self._user_id
 
     @property
     def user_label(self) -> str | None:
-        """Return the user label."""
         return self._user_label
 
     @property
     def is_authenticated(self) -> bool:
-        """Return whether client is authenticated."""
         return self._token is not None

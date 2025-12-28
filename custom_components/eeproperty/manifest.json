@@ -11,6 +11,9 @@
   "documentation": "https://github.com/timotheeandres/eeproperty_hacs",
   "iot_class": "cloud_polling",
   "issue_tracker": "https://github.com/timotheeandres/eeproperty_hacs/issues",
+  "loggers": [
+    "custom_components.eeproperty"
+  ],
   "requirements": [],
   "version": "0.2.0"
 }

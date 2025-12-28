@@ -32,6 +32,10 @@ ATTR_ROOM = "room"
 ATTR_PRICING = "pricing"
 ATTR_COST_PER_CYCLE = "cost_per_cycle"
 ATTR_BALANCE = "balance"
+ATTR_UNLIMITED_BALANCE = "unlimited_balance"
 
 # Symbols
 CURRENCY = 'CHF'
+
+# Formats
+DATETIME_FORMAT = "%Y-%m-%dT%H:%M:%SZ"

@@ -1,4 +1,5 @@
 {
+  "title": "eeproperty",
   "config": {
     "step": {
       "user": {
@@ -14,6 +15,36 @@
         "data": {
           "2fa_code": "Code de sécurité"
         }
+      }
+    },
+    "error": {
+      "invalid_auth": "Code d'immeuble ou code personnel invalide",
+      "cannot_send_code": "Échec de l'envoi du code de sécurité",
+      "invalid_code": "Code de sécurité invalide"
+    }
+  },
+  "entity": {
+    "sensor": {
+      "washer_n": {
+        "name": "Lave-linge {machine_number}",
+        "state": {
+          "available": "Disponible",
+          "used": "Utilisé",
+          "occupied": "Occupé",
+          "unavailable": "Indisponible"
+        }
+      },
+      "dryer_n": {
+        "name": "Sèche-linge {machine_number}",
+        "state": {
+          "available": "Disponible",
+          "used": "Utilisé",
+          "occupied": "Occupé",
+          "unavailable": "Indisponible"
+        }
+      },
+      "balance": {
+        "name": "Solde"
       }
     }
   }
