@@ -1,218 +1,151 @@
 """Sensor platform for eeproperty."""
 import logging
-from dataclasses import dataclass
-from datetime import timedelta
+import typing
+from typing import Literal
 
-from homeassistant.components.sensor import SensorEntity, SensorDeviceClass
+from homeassistant.components.sensor import SensorDeviceClass, SensorEntity
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
-from homeassistant.helpers.update_coordinator import (
-    CoordinatorEntity,
-    DataUpdateCoordinator,
-    UpdateFailed,
-)
+from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
-from .api import EePropertyApiClient
-from .const import (
-    ATTR_COST_PER_CYCLE,
-    ATTR_MACHINE_NUMBER,
-    ATTR_MACHINE_TYPE,
-    ATTR_PRICING,
-    ATTR_ROOM,
-    DEFAULT_SCAN_INTERVAL,
-    DOMAIN,
-    CURRENCY,
-)
+from . import EePropertyApiClient
+from .const import (ATTR_COST_PER_CYCLE, ATTR_MACHINE_NUMBER, ATTR_MACHINE_TYPE, ATTR_PRICING, ATTR_ROOM,
+                    ATTR_UNLIMITED_BALANCE, CURRENCY, DOMAIN)
+from .coordinator import EePropertyDataUpdateCoordinator
 from .models import Machine, MachineType, User
 
 _LOGGER = logging.getLogger(__name__)
 
-SCAN_INTERVAL = timedelta(seconds=DEFAULT_SCAN_INTERVAL)
+MachineOption = Literal["available", "occupied", "unavailable", "used"]
 
 
-@dataclass
-class EePropertyData:
-    """Data class for coordinator data."""
+async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry,
+                            async_add_entities: AddEntitiesCallback) -> None:
+    client: EePropertyApiClient = hass.data[DOMAIN][config_entry.entry_id]
+    coordinator = EePropertyDataUpdateCoordinator(hass, config_entry, client)
 
-    machines: list[Machine]
-    user: User | None
-
-
-async def async_setup_entry(
-    hass: HomeAssistant,
-    entry: ConfigEntry,
-    async_add_entities: AddEntitiesCallback,
-) -> None:
-    """Set up eeproperty sensor based on a config entry."""
-    client: EePropertyApiClient = hass.data[DOMAIN][entry.entry_id]
-
-    # Create coordinator for all machines
-    coordinator = EePropertyDataUpdateCoordinator(hass, client)
-
-    # Fetch initial data
     await coordinator.async_config_entry_first_refresh()
 
-    entities: list[SensorEntity] = []
+    entities: list[SensorEntity] = [EePropertyBalanceSensor(coordinator, client.user_label)]
 
-    # Create sensor for each machine
-    if coordinator.data and coordinator.data.machines:
-        for machine in coordinator.data.machines:
-            entities.append(
-                EePropertyMachineSensor(coordinator, machine.number, machine.type)
-            )
-
-    # Create balance sensor
-    entities.append(EePropertyBalanceSensor(coordinator))
+    for machine in coordinator.data.machines:
+        entities.append(
+            EePropertyMachineSensor(coordinator, client.user_label, machine.number, machine.type)
+        )
 
     async_add_entities(entities)
-
-
-class EePropertyDataUpdateCoordinator(DataUpdateCoordinator[EePropertyData]):
-    """Class to manage fetching eeproperty data."""
-
-    def __init__(
-        self,
-        hass: HomeAssistant,
-        client: EePropertyApiClient,
-    ) -> None:
-        """Initialize."""
-        super().__init__(
-            hass,
-            _LOGGER,
-            name=DOMAIN,
-            update_interval=SCAN_INTERVAL,
-        )
-        self.client = client
-
-    async def _async_update_data(self) -> EePropertyData:
-        """Update data via library."""
-        try:
-            machines = await self.client.get_machines()
-            user_data = await self.client.get_user_data()
-
-            return EePropertyData(machines=machines, user=user_data)
-        except Exception as err:
-            raise UpdateFailed(f"Error communicating with API: {err}") from err
 
 
 class EePropertyMachineSensor(CoordinatorEntity[EePropertyDataUpdateCoordinator], SensorEntity):
     """Representation of an eeproperty washing machine sensor."""
 
     def __init__(
-        self,
-        coordinator: EePropertyDataUpdateCoordinator,
-        machine_number: int,
-        machine_type: MachineType,
+            self,
+            coordinator: 'EePropertyDataUpdateCoordinator',
+            user_label: str,
+            machine_number: int,
+            machine_type: MachineType,
     ) -> None:
-        """Initialize the sensor."""
         super().__init__(coordinator)
         self._machine_number = machine_number
         self._machine_type = machine_type
-        self._attr_unique_id = f"{DOMAIN}_machine_{machine_number}"
+        self._user_label = user_label
 
-        # Set name based on type
-        type_name = "Washing Machine" if machine_type == "WASHER" else "Dryer"
-        self._attr_name = f"{type_name} {machine_number}"
+        sensor_id = user_label.replace(" ", "_")
+        self._attr_unique_id = f"{DOMAIN}_{sensor_id}_machine_{machine_number}"
 
-    def _get_machine_data(self) -> Machine | None:
-        """Get this machine's data from coordinator."""
-        if not self.coordinator.data or not self.coordinator.data.machines:
-            return None
+        self._attr_translation_key = "washer_n" if self._machine_type == "WASHER" else "dryer_n"
+        self._attr_translation_placeholders = {"machine_number": str(self._machine_number)}
 
-        for machine in self.coordinator.data.machines:
-            if machine.number == self._machine_number:
-                return machine
+    @property
+    def options(self) -> list[str] | None:
+        return list(typing.get_args(MachineOption))
+
+    @property
+    def device_class(self) -> SensorDeviceClass | None:
+        return SensorDeviceClass.ENUM
+
+    @property
+    def native_value(self) -> MachineOption | None:
+        if (machine := self._machine_data) is not None:
+            match machine.state:
+                case "DEACTIVATED":
+                    return "available"
+                case "ACTIVATED" if machine.user_label == self._user_label:
+                    return "used"
+                case "ACTIVATED":
+                    return "occupied"
+                case "ERROR":
+                    return "unavailable"
+
         return None
 
     @property
-    def native_value(self) -> str | None:
-        """Return the state of the sensor."""
-        machine = self._get_machine_data()
-        if not machine:
-            return None
-
-        return machine.friendly_state
-
-    @property
     def extra_state_attributes(self) -> dict[str, str | int | None]:
-        """Return the state attributes."""
-        machine = self._get_machine_data()
-        if not machine:
-            return {}
+        if (machine := self._machine_data) is not None:
+            return {
+                ATTR_MACHINE_TYPE: machine.type,
+                ATTR_MACHINE_NUMBER: machine.number,
+                ATTR_ROOM: machine.room,
+                ATTR_PRICING: machine.pricing,
+                ATTR_COST_PER_CYCLE: machine.cost_per_cycle,
+            }
 
-        return {
-            ATTR_MACHINE_TYPE: machine.type,
-            ATTR_MACHINE_NUMBER: machine.number,
-            ATTR_ROOM: machine.room,
-            ATTR_PRICING: machine.pricing,
-            ATTR_COST_PER_CYCLE: machine.cost_per_cycle,
-        }
-
-    @property
-    def icon(self) -> str:
-        """Return the icon to use in the frontend."""
-        machine = self._get_machine_data()
-        if not machine:
-            return "mdi:washing-machine-off"
-
-        # Choose icon based on type and state
-        if machine.type == "DRYER":
-            if machine.state == "DEACTIVATED":
-                return "mdi:tumble-dryer"
-            elif machine.state == "ACTIVATED":
-                return "mdi:tumble-dryer-off"
-            else:
-                return "mdi:tumble-dryer-alert"
-        else:  # WASHER
-            if machine.state == "DEACTIVATED":
-                return "mdi:washing-machine"
-            elif machine.state == "ACTIVATED":
-                return "mdi:washing-machine-off"
-            else:
-                return "mdi:washing-machine-alert"
+        return {}
 
     @property
     def available(self) -> bool:
-        """Return if entity is available."""
-        return self._get_machine_data() is not None
+        return self._machine_data is not None
+
+    @property
+    def _machine_data(self) -> Machine | None:
+        for machine in self.coordinator.get_machines_data():
+            if machine.type == self._machine_type and machine.number == self._machine_number:
+                return machine
+
+        return None
 
 
 class EePropertyBalanceSensor(CoordinatorEntity[EePropertyDataUpdateCoordinator], SensorEntity):
     """Sensor for user account balance."""
 
-    _attr_device_class = SensorDeviceClass.MONETARY
-    _attr_native_unit_of_measurement = CURRENCY
-
-    def __init__(self, coordinator: EePropertyDataUpdateCoordinator) -> None:
-        """Initialize the balance sensor."""
+    def __init__(self, coordinator: EePropertyDataUpdateCoordinator, user_label: str) -> None:
         super().__init__(coordinator)
-        self._attr_unique_id = f"{DOMAIN}_balance"
-        self._attr_name = "Balance"
+        sensor_id = user_label.replace(" ", "_")
+        self._attr_unique_id = f"{DOMAIN}_{sensor_id}_balance"
+        self._attr_has_entity_name = True
+
+        self._attr_translation_key = "balance"
+
+    @property
+    def device_class(self) -> SensorDeviceClass | None:
+        return SensorDeviceClass.MONETARY
 
     @property
     def native_value(self) -> int | None:
         """Return the balance."""
-        if not self.coordinator.data or not self.coordinator.data.user:
-            return None
+        if (user := self._user_data) is not None:
+            return user.balance
 
-        return self.coordinator.data.user.balance
+        return None
+
+    @property
+    def native_unit_of_measurement(self) -> str | None:
+        return CURRENCY
 
     @property
     def extra_state_attributes(self) -> dict[str, str | bool]:
-        """Return the state attributes."""
-        if not self.coordinator.data or not self.coordinator.data.user:
-            return {}
+        if (user := self._user_data) is not None:
+            return {
+                ATTR_UNLIMITED_BALANCE: user.unlimited_balance,
+            }
 
-        user = self.coordinator.data.user
-
-        return {
-            "user_number": user.number,
-            "user_name": user.full_name,
-            "unlimited_balance": user.unlimited_balance,
-        }
+        return {}
 
     @property
-    def icon(self) -> str:
-        """Return the icon."""
-        return "mdi:wallet"
+    def _user_data(self) -> User | None:
+        if self.coordinator.data and self.coordinator.data.user:
+            return self.coordinator.data.user
+
+        return None

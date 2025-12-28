@@ -1,4 +1,5 @@
 {
+  "title": "eeproperty",
   "config": {
     "step": {
       "user": {
@@ -14,6 +15,36 @@
         "data": {
           "2fa_code": "Security code"
         }
+      }
+    },
+    "error": {
+      "invalid_auth": "Invalid building code or personal code",
+      "cannot_send_code": "Cannot send security code",
+      "invalid_code": "Invalid security code"
+    }
+  },
+  "entity": {
+    "sensor": {
+      "washer_n": {
+        "name": "Washing machine {machine_number}",
+        "state": {
+          "available": "Available",
+          "used": "Used",
+          "occupied": "Occupied",
+          "unavailable": "Unavailable"
+        }
+      },
+      "dryer_n": {
+        "name": "Dryer {machine_number}",
+        "state": {
+          "available": "Available",
+          "used": "Used",
+          "occupied": "Occupied",
+          "unavailable": "Unavailable"
+        }
+      },
+      "balance": {
+        "name": "Balance"
       }
     }
   }

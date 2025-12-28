@@ -1,0 +1,25 @@
+{
+  "entity": {
+    "sensor": {
+      "balance": {
+        "default": "mdi:wallet"
+      },
+      "washer_n": {
+        "default": "mdi:washing-machine-alert",
+        "state": {
+          "available": "mdi:washing-machine",
+          "used": "mdi:washing-machine-off",
+          "occupied": "mdi:washing-machine-off"
+        }
+      },
+      "dryer_n": {
+        "default": "mdi:tumble-dryer-alert",
+        "state": {
+          "available": "mdi:tumble-dryer",
+          "used": "mdi:tumble-dryer-off",
+          "occupied": "mdi:tumble-dryer-off"
+        }
+      }
+    }
+  }
+}

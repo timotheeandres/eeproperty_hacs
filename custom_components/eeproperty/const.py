@@ -10,11 +10,13 @@ VESTA_API_URL = "https://vesta.eeproperty.com"
 CONF_BUILDING_CODE = "building_code"
 CONF_PERSONAL_CODE = "personal_code"
 CONF_2FA = "2fa_code"
+CONF_TOKEN_DATE = "token_date"
+CONF_TOKEN_EXPIRY = "token_expiry"
 CONF_USER_ID = "user_id"
 CONF_USER_LABEL = "user_label"
 
 # Default values
-DEFAULT_SCAN_INTERVAL = 30  # seconds
+DEFAULT_SCAN_INTERVAL = 15  # seconds
 
 # API Headers
 HEADER_TOKEN = "X-Token"
@@ -30,6 +32,10 @@ ATTR_ROOM = "room"
 ATTR_PRICING = "pricing"
 ATTR_COST_PER_CYCLE = "cost_per_cycle"
 ATTR_BALANCE = "balance"
+ATTR_UNLIMITED_BALANCE = "unlimited_balance"
 
 # Symbols
 CURRENCY = 'CHF'
+
+# Formats
+DATETIME_FORMAT = "%Y-%m-%dT%H:%M:%SZ"
